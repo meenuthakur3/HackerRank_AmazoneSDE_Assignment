@@ -1,0 +1,135 @@
+Problem 1:-
+At Amazon, a user owns a unique tool called the
+"Parentheses Perfection Kit." This kit contains different types of parentheses, each with a specific efficiency rating. The goal is to create a balanced sequence of parentheses by adding zero or more parentheses from the kit to maximize the sequences total EfficiencyScore. The EfficiencyScore of a sequence is the sum of the efficiency ratings of the parentheses used from the kit.
+
+
+A sequence is considered balanced if it has an equal number of opening '(' and closing )' parentheses, with each opening parentheses properly matched with a closing one in the correct order (i.e., circular balance). For instance, sequences like (()), (), and (()()) are balanced, while sequences like ), ((), and (()(())) are not.
+
+
+You are given an initial parentheses sequence represented by the string s, along with a Parentheses Perfection Kit containing different types of parentheses in the form of the string kitParentheses and their respective efficiency ratings in the efficiencyRatings array (both of size m). The EfficiencyScore of the original strings is initially 0. You can use any number of unused parentheses from the kit to create the final sequence, as long as the final sequence remains balanced.
+
+
+The task is to determine the maximum possible EfficiencyScore that can be achieved for the resulting balanced sequence
+
+
+Note: It is guaranteed that the sequence can be made balanced by adding zero or more parentheses from the kit.
+
+
+Sample Case 0
+Sample Input 0
+STDIN Function
+() → s = "() "
+(()) → kitParentheses = "(())"
+4 → efficiencyRatings[] size m=4
+4 → efficiencyRatings = [4, 2, -3, -3]
+2
+-3
+-3
+
+
+Explanation
+If the user used the 0th indexed and 2nd indexed parentheses from the bag and add them to the start and end of the
+string respectively, then the final balanced sequence will be "(0)" with a total EfficiencyScore of 4 + (-3) = 1. There are
+no other combinations of adding parentheses that can yield a balanced sequence with total EfficiencyScore greater than 1, Hence return 1 as answer.
+
+Solution:-
+
+
+    public static long findMaxEfficiencyScore(String s, String kitParentheses, List<Integer> efficiencyRatings) {
+        
+        int unmatchedOpen = 0, unmatchedClose = 0;
+        Stack<Character> stack = new Stack<>();
+        for (char c : s.toCharArray()) {
+            if (c == '(') {
+                stack.push(c);
+            } else if (c == ')') {
+                if (!stack.isEmpty() && stack.peek() == '(') {
+                    stack.pop(); // Found a match
+                } else {
+                    unmatchedClose++; 
+                }
+            }
+        }
+        unmatchedOpen = stack.size(); 
+
+        
+        PriorityQueue<Integer> openEfficiency = new PriorityQueue<>(Collections.reverseOrder());
+        PriorityQueue<Integer> closeEfficiency = new PriorityQueue<>(Collections.reverseOrder());
+
+        for (int i = 0; i < kitParentheses.length(); i++) {
+            char parenthesis = kitParentheses.charAt(i);
+            int efficiency = efficiencyRatings.get(i);
+            if (parenthesis == '(') {
+                openEfficiency.add(efficiency);
+            } else if (parenthesis == ')') {
+                closeEfficiency.add(efficiency);
+            }
+        }
+
+        long maxEfficiency = 0;
+
+   
+        while (unmatchedOpen > 0 && !closeEfficiency.isEmpty()) {
+            maxEfficiency += closeEfficiency.poll(); // Use the most efficient ')' to balance
+            unmatchedOpen--;
+        }
+
+        while (unmatchedClose > 0 && !openEfficiency.isEmpty()) {
+            maxEfficiency += openEfficiency.poll(); // Use the most efficient '(' to balance
+            unmatchedClose--;
+        }
+
+      
+        while (!openEfficiency.isEmpty() && !closeEfficiency.isEmpty() && openEfficiency.peek() + closeEfficiency.peek() > 0) {
+            maxEfficiency += openEfficiency.poll() + closeEfficiency.poll();
+        }
+
+        return maxEfficiency;
+    }
+}
+
+Problem 2:-
+In Amazon highly efficient logistic network minimizing operational overhead and optimized package routine, routing is crucial to ensure smooth delivery across various regions. The network consists of N warehouse numbered from 1 to N, each strategically positioned at its corresponding index. Each warehouse has a specific storage capacity given by warehouse capacity where warehouse capacity i represent the capacity of warehouse located at position i assuming i1 based indexing. These warehouse are organized in a decreasing order of their storage capacity meaning each warehouse storage capacity is greater than or equal to the one before it. Each warehouse must establish a connection to distribution hub positioned at location greater than or equal to its own. This means that a warehouse at a position can only connect to hub at position j where j is greater than or equal to j. To optimize inventory routing, Amazon has placed a central high capacity distribution hub at a last warehouse located at position n. This hub serves as the main connection point to all warehouses if necessary. The cost of establishing a connection from warehouse at i to hub position j is given by warehouse capacity j warehouse minus warehouse capacity i. Give q query for from hub a to hub b where two additional high performance distribution hubs are deployed at warehouse hub a and hub b. One is less than hub a and less than hub b less than n. The goal is to calculate the minimum total connection cost of all warehouse considering the nearest available distribution hub at beyond each warehouse position.
+Note, the problem statement assumes minus 1 based indexing for the warehouse capacity array. 2. Each query is independent. i.e. The changes made do not persist for subsequent queries. 3. Each warehouse connects to the nearest hub at or beyond its position, either hub A, hub B, or central hub at M, to minimize the overall connection cost. 4. In this case, there is a queue equal to 1, query with 2 additional high-performance distribution hubs at position A, hub A equal to 2, and hub B equal to 4. 5. Once additional distribution hubs are installed at position A, hub A equal to 2, and hub B equal to 4, the first warehouse will connect to the nearest available distribution hub at position 2, and cost in occurred equal to 6, minus 3 equal to 3. 6. Second warehouse is itself a distribution hub, so cost in occurred equal to 0. 7. Third warehouse will connect to the nearest available distribution hub at position 4, cost in occurred equal to 15, minus 10 equal to 5. 8. Third warehouse is itself a distribution hub, so cost in occurred equal to 0, plus 0 equal to 0. 9. Thus, the total connection cost equal to 6, minus 3, plus 0, plus 15, minus 10, plus 0, plus 0 equal to 8. Hence, return 8, the answer.
+Function Description Complete the function GetMinimumConnectionCost in the editor below. GetMinimumConnectionCost has the following parameters in WarehouseCapacity and a non-decreasing array of entities representing the storage capacity of the warehouse in AdditionalHub, SquareBracketQueue, SquareBracket2 in array where each element denotes the position of two additional distribution hubs installed for each query return, log, underscore, int, SquareBracketQueue. The answer for each query consists There should be the input format The first line contains an integer and the number of elements in the WarehouseCapacity Each line i of the n-sequenced line where 0 less than n contains an integer WarehouseCapacity i, the next line contains an integer Queue the number of rows in the AdditionalHub The next line contains an integer too The number of columns in the AdditionalHub Each line i of the n-sequenced line where 0 less than n contains two integers AdditionalHub SquareBracket i, SquareBracket0, AdditionalHub i and 1
+Solution:- 
+public static List<Long> getMinConnectionCost(List<Integer> warehouseCapacity, List<List<Integer>> additionalHubs) {
+        List<Long> result = new ArrayList<>();
+        int n = warehouseCapacity.size();
+        
+        // For each query in additionalHubs
+        for (List<Integer> hubs : additionalHubs) {
+            int hubA = hubs.get(0) - 1; // Convert to 0-based index
+            int hubB = hubs.get(1) - 1; // Convert to 0-based index
+            long totalCost = 0;
+            
+            // Calculate minimum connection cost for each warehouse
+            for (int i = 0; i < n; i++) {
+                int warehouseCapacityAtI = warehouseCapacity.get(i);
+                long minCost = Long.MAX_VALUE;
+
+                // Cost to central hub (last warehouse)
+                minCost = Math.min(minCost, Math.abs(warehouseCapacityAtI - warehouseCapacity.get(n - 1)));
+
+                // Cost to additional hub A if its position is greater than or equal to the warehouse position
+                if (hubA >= i) {
+                    minCost = Math.min(minCost, Math.abs(warehouseCapacityAtI - warehouseCapacity.get(hubA)));
+                }
+
+                // Cost to additional hub B if its position is greater than or equal to the warehouse position
+                if (hubB >= i) {
+                    minCost = Math.min(minCost, Math.abs(warehouseCapacityAtI - warehouseCapacity.get(hubB)));
+                }
+
+                // Add the minimum cost for this warehouse
+                totalCost += minCost;
+            }
+            
+            // Add the total cost for this query
+            result.add(totalCost);
+        }
+        
+        return result;
+    }
+}
+
